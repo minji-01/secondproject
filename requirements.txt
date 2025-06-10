@@ -5,3 +5,5 @@ koreanize_matplotlib
 streamlit-folium
 plotly
 scipy
+matplotlib.pyplot
+seaborn
