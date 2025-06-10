@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.title("CSV 파일 시각화 앱")
+st.title("온도변화를 이용한 중화점 찾기")
 
 # CSV 파일 업로더
 uploaded_file = st.file_uploader("CSV 파일을 업로드하세요", type=["csv"])
@@ -17,8 +17,8 @@ if uploaded_file is not None:
 
         # 데이터프레임 컬럼 선택 (x, y 축)
         columns = df.columns.tolist()
-        x_axis = st.selectbox("X축으로 사용할 컬럼을 선택하세요:", options=columns)
-        y_axis = st.selectbox("Y축으로 사용할 컬럼을 선택하세요:", options=columns)
+        x_axis = st.selectbox("X축으로 사용할 정보를 선택하세요:", options=columns)
+        y_axis = st.selectbox("Y축으로 사용할 정보를 선택하세요:", options=columns)
 
         if x_axis and y_axis:
             st.subheader(f"{y_axis} vs {x_axis} 그래프")
