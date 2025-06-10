@@ -52,8 +52,8 @@ sydney_attractions = [
 ]
 
 # Streamlit 앱 제목
-st.title("\U0001F1E6\U0001F1FA 시드니 주요 관광지 가이드")
-st.markdown("호주의 아름다운 항구 도시 시드니의 주요 관광지를 지도와 함께 소개합니다!")
+st.title("\U0001F1E6\U0001F1FA 나의 시드니 여행 가이드 ")
+st.markdown("호주의 아름다운 항구 도시 시드니의 주요 관광지를 소개합니다!")
 
 # Folium 지도 생성
 m = folium.Map(location=[-33.8688, 151.2093], zoom_start=12, control_scale=True)
@@ -99,7 +99,7 @@ for day in range(1, selected_days + 1):
         st.markdown(f"**{place['name']}**: {place['description'].strip().splitlines()[0]}")
 
 # 간단한 일정표 생성기
-st.header("\U0001F4C5 나만의 일정 만들기")
+st.header("\U0001F4C5 나의 일정 만들기")
 st.markdown("원하는 날짜와 관광지를 선택해보세요!")
 
 travel_date = st.date_input("여행 시작일", date.today())
