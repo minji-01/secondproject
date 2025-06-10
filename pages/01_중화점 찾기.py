@@ -52,7 +52,7 @@ if uploaded_file is not None:
                         x=col_x,
                         y=col_y,
                         title=f"{col_x} vs {col_y} 산점도 분석 🧐",
-                        labels={col_x: f"{col_x} (단위: 여러분의 상상력)", col_y: f"{col_y} (단위: 신비로운 측정치)"},
+                        labels={col_x: f"{col_x}", col_y: f"{col_y}"},
                         hover_data=[col_x, col_y] # 마우스를 올렸을 때 보여줄 데이터 지정
                     )
 
