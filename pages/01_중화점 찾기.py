@@ -80,4 +80,4 @@ if uploaded_file is not None:
 
 st.markdown("---")
 st.info("이 앱이 과학 실험 데이터를 이해하는 데 도움이 되었기를 바랍니다! 궁금한 점이 있다면 언제든지 질문하세요! 🧑‍🔬👩‍🔬")
-st.markdown("Made with ❤️ by 여러분의 AI 조수")
+st.markdown("Made with ❤️ by 곰지T")
