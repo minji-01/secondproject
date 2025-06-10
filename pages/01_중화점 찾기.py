@@ -4,7 +4,7 @@ import plotly.express as px # Plotly Express 임포트
 
 # Streamlit 앱 제목 설정 및 이모지 추가
 st.set_page_config(page_title="온도변화를 이용하여 중화점 찾기🔬🧪", layout="centered")
-st.title("온도변화를 이용하여 중화점 찾기 🔬🧪📊")
+st.title("온도변화를 이용하여 중화점 찾기📊")
 st.markdown("---")
 
 st.markdown("""
