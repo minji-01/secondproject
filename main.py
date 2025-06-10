@@ -1,7 +1,7 @@
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from datetime import date
+from datetime import date, timedelta
 
 # 관광지 정보 리스트
 sydney_attractions = [
@@ -49,11 +49,27 @@ sydney_attractions = [
 코알라, 캥거루, 기린 등 다양한 동물을 가까이서 볼 수 있습니다.
 """
     },
+    {
+        "name": "오스트레일리아 박물관",
+        "location": [-33.8740, 151.2131],
+        "description": """
+호주에서 가장 오래된 박물관으로,
+자연사, 고고학, 문화 유산 관련 전시가 풍부합니다.
+"""
+    },
+    {
+        "name": "아트 갤러리 NSW",
+        "location": [-33.8680, 151.2171],
+        "description": """
+호주와 국제 현대 미술 작품이 전시되어 있는 미술관입니다.
+시드니 중심에 위치해 접근성이 뛰어납니다.
+"""
+    }
 ]
 
 # Streamlit 앱 제목
-st.title("\U0001F1E6\U0001F1FA 나의 시드니 여행 가이드 ")
-st.markdown("호주의 아름다운 항구 도시 시드니의 주요 관광지를 소개합니다!")
+st.title("\U0001F1E6\U0001F1FA 시드니 주요 관광지 가이드")
+st.markdown("호주의 아름다운 항구 도시 시드니의 주요 관광지를 지도와 함께 소개합니다!")
 
 # Folium 지도 생성
 m = folium.Map(location=[-33.8688, 151.2093], zoom_start=12, control_scale=True)
@@ -87,9 +103,9 @@ selected_days = st.slider("여행 일수 선택", min_value=1, max_value=5, valu
 itinerary = {
     1: ["시드니 오페라 하우스", "하버 브리지"],
     2: ["본다이 비치", "시드니 타워 아이"],
-    3: ["타롱가 동물원", "하버 브리지"],
-    4: ["본다이 비치", "타롱가 동물원"],
-    5: ["시드니 오페라 하우스", "시드니 타워 아이"]
+    3: ["타롱가 동물원", "오스트레일리아 박물관"],
+    4: ["본다이 비치", "아트 갤러리 NSW"],
+    5: ["시드니 오페라 하우스", "아트 갤러리 NSW"]
 }
 
 for day in range(1, selected_days + 1):
@@ -99,18 +115,26 @@ for day in range(1, selected_days + 1):
         st.markdown(f"**{place['name']}**: {place['description'].strip().splitlines()[0]}")
 
 # 간단한 일정표 생성기
-st.header("\U0001F4C5 나의 일정 만들기")
-st.markdown("원하는 날짜와 관광지를 선택해보세요!")
+st.header("\U0001F4C5 나만의 일정 만들기")
+st.markdown("원하는 날짜와 관광지를 선택해보세요! (2개 이상 선택 가능)")
 
-travel_date = st.date_input("여행 시작일", date.today())
+travel_start = st.date_input("여행 시작일", date.today())
 schedule = {}
 
 for i in range(selected_days):
-    day = travel_date.strftime("%Y-%m-%d")
-    selected_place = st.selectbox(f"Day {i+1} 일정 선택", [p["name"] for p in sydney_attractions], key=f"day_{i}")
-    schedule[day] = selected_place
-    travel_date = travel_date.replace(day=travel_date.day + 1)
+    current_date = travel_start + timedelta(days=i)
+    selected_places = st.multiselect(f"Day {i+1} 일정 선택 ({current_date})", [p["name"] for p in sydney_attractions], key=f"day_{i}")
+    schedule[str(current_date)] = selected_places
 
 st.subheader("📆 나의 여행 일정표")
-for day, place in schedule.items():
-    st.write(f"{day}: {place}")
+for day, places in schedule.items():
+    if places:
+        st.markdown(f"**{day}**")
+        reordered = st.experimental_data_editor(
+            {"순서": list(range(1, len(places)+1)), "장소": places},
+            num_rows="dynamic",
+            use_container_width=True,
+            key=f"editor_{day}"
+        )
+        for idx, row in reordered.iterrows():
+            st.write(f"{row['순서']} - {row['장소']}")
