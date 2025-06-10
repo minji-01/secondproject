@@ -76,7 +76,6 @@ else:
                 normalized_data,
                 title="기준일 대비 종가 변화율 (%)",
                 labels={'value': '변화율 (%)', 'index': '날짜'},
-                hover_name=normalized_data.columns # 마우스 오버 시 기업 이름 표시
             )
             fig_normalized.update_layout(hovermode="x unified") # x축에 대한 툴팁 통합
             st.plotly_chart(fig_normalized, use_container_width=True)
