@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px # Plotly Express 임포트
 
 # Streamlit 앱 제목 설정 및 이모지 추가
 st.set_page_config(page_title="과학 실험 데이터 분석기 🔬🧪", layout="centered")
@@ -46,15 +45,27 @@ if uploaded_file is not None:
                 if col_x and col_y:
                     st.subheader(f"'{col_x}'와 '{col_y}'의 관계 그래프")
 
-                    # Matplotlib을 이용한 산점도 그리기
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    sns.scatterplot(x=df[col_x], y=df[col_y], ax=ax)
-                    ax.set_xlabel(f"{col_x} (단위: 여러분의 상상력)", fontsize=12) # 고등학생 대상 흥미 유발 문구
-                    ax.set_ylabel(f"{col_y} (단위: 신비로운 측정치)", fontsize=12) # 고등학생 대상 흥미 유발 문구
-                    ax.set_title(f"{col_x} vs {col_y} 산점도 분석 🧐", fontsize=14)
-                    ax.grid(True, linestyle='--', alpha=0.7)
-                    st.pyplot(fig)
-                    st.success("그래프가 성공적으로 그려졌어요! 멋진 발견을 할 수 있기를 바랍니다! ✨")
+                    # Plotly Express를 이용한 산점도 그리기 (툴팁 자동 포함)
+                    # hover_name 또는 hover_data를 사용하여 툴팁에 추가 정보를 표시할 수 있습니다.
+                    fig = px.scatter(
+                        df,
+                        x=col_x,
+                        y=col_y,
+                        title=f"{col_x} vs {col_y} 산점도 분석 🧐",
+                        labels={col_x: f"{col_x} (단위: 여러분의 상상력)", col_y: f"{col_y} (단위: 신비로운 측정치)"},
+                        hover_data=[col_x, col_y] # 마우스를 올렸을 때 보여줄 데이터 지정
+                    )
+
+                    # 그래프 레이아웃 커스터마이징 (선택 사항)
+                    fig.update_layout(
+                        title_font_size=20,
+                        xaxis_title_font_size=14,
+                        yaxis_title_font_size=14,
+                        height=500 # 그래프 높이 설정
+                    )
+
+                    st.plotly_chart(fig, use_container_width=True) # Streamlit에 Plotly 그래프 표시
+                    st.success("그래프가 성공적으로 그려졌어요! 마우스를 점 위에 올려 정보를 확인해보세요! ✨")
                     st.markdown("""
                         **그래프 분석 팁:**
                         - 점들이 한 방향으로 모여있나요? (양의 상관관계 또는 음의 상관관계)
