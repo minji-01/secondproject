@@ -3,12 +3,12 @@ import pandas as pd
 import plotly.express as px # Plotly Express 임포트
 
 # Streamlit 앱 제목 설정 및 이모지 추가
-st.set_page_config(page_title="과학 실험 데이터 분석기 🔬🧪", layout="centered")
-st.title("과학 실험 데이터 분석기 🔬🧪📊")
+st.set_page_config(page_title="온도변화를 이용하여 중화점 찾기🔬🧪", layout="centered")
+st.title("온도변화를 이용하여 중화점 찾기 🔬🧪📊")
 st.markdown("---")
 
 st.markdown("""
-    환영합니다! 👋 이 앱은 여러분의 **과학 실험 데이터**를 시각적으로 분석하는 데 도움을 줄 거예요.
+    PASCO 무선 센서를 이용하여 얻은 데이터를 이용하여 그래프를 만들어볼게요.
     CSV 파일을 업로드하고, 원하는 변수를 선택해서 멋진 그래프를 만들어 보세요! 🚀
 """)
 
