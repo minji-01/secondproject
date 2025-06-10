@@ -9,8 +9,6 @@ st.set_page_config(layout="wide") # 페이지 전체 너비 사용
 st.title("글로벌 시총 상위 기업 주가 변동 시각화")
 
 # 추천하는 시가총액 상위 기업 티커 심볼 리스트
-# 주의: Saudi Aramco (2222.SR)는 yfinance에서 데이터가 불안정할 수 있습니다.
-# Berkshire Hathaway는 BRK-B가 더 일반적입니다.
 top_companies_tickers = {
     "Microsoft": "MSFT",
     "Nvidia": "NVDA",
@@ -35,6 +33,9 @@ start_date = end_date - pd.DateOffset(years=3)
 def get_stock_data(ticker, start, end):
     try:
         data = yf.download(ticker, start=start, end=end)
+        # 중요: 인덱스를 'Date'라는 이름의 컬럼으로 변환
+        data.reset_index(inplace=True)
+        data.rename(columns={'Date': 'Date'}, inplace=True) # 컬럼 이름을 'Date'로 명확히 지정 (선택 사항이지만 일관성 유지)
         return data
     except Exception as e:
         st.warning(f"티커 {ticker}의 데이터를 가져오는 데 실패했습니다: {e}")
@@ -66,18 +67,33 @@ else:
         normalized_data = pd.DataFrame()
         for company in selected_companies:
             if company in all_data:
-                # 첫날 가격으로 정규화 (백분율 변화를 보기 위함)
-                first_close = all_data[company]['Close'].iloc[0]
-                normalized_data[company] = (all_data[company]['Close'] / first_close - 1) * 100
-
+                # `get_stock_data`에서 이미 Date 컬럼이 있으므로, 그걸 사용
+                # 정규화 시에는 'Close' 컬럼만 필요하므로, Date 컬럼을 다시 인덱스로 설정하거나, Date 컬럼 기준으로 Merge
+                # 여기서는 Long Format으로 변환하는 것이 더 견고함 (이전 답변에서 제시했던 2번째 해결책)
+                temp_df = all_data[company].set_index('Date') # 임시로 Date를 인덱스로 설정
+                first_close = temp_df['Close'].iloc[0]
+                normalized_data[company] = (temp_df['Close'] / first_close - 1) * 100
+        
+        # 다시 `normalized_data`를 `px.line`이 선호하는 Long Format으로 변환
         if not normalized_data.empty:
+            normalized_data_long = normalized_data.reset_index().melt(
+                id_vars='index',
+                var_name='Company',
+                value_name='Normalized Change (%)'
+            )
+            normalized_data_long = normalized_data_long.rename(columns={'index': 'Date'}) # 'index' 컬럼명을 'Date'로 변경
+
             st.write("### 정규화된 종가 변동률 (기준일 대비)")
             fig_normalized = px.line(
-                normalized_data,
+                normalized_data_long,
+                x='Date',
+                y='Normalized Change (%)',
+                color='Company',
                 title="기준일 대비 종가 변화율 (%)",
-                labels={'value': '변화율 (%)', 'index': '날짜'},
+                labels={'Date': '날짜', 'Normalized Change (%)': '변화율 (%)'},
+                hover_name='Company'
             )
-            fig_normalized.update_layout(hovermode="x unified") # x축에 대한 툴팁 통합
+            fig_normalized.update_layout(hovermode="x unified")
             st.plotly_chart(fig_normalized, use_container_width=True)
 
         # 개별 기업의 캔들스틱 차트 표시
@@ -85,10 +101,11 @@ else:
         for company in selected_companies:
             if company in all_data:
                 st.write(f"#### {company} ({top_companies_tickers[company]})")
-                stock_df = all_data[company]
+                stock_df = all_data[company].copy() # 원본 데이터프레임 변경 방지를 위해 .copy() 사용
 
+                # 캔들스틱 차트는 Date 컬럼을 x축으로 사용
                 fig_candlestick = go.Figure(data=[go.Candlestick(
-                    x=stock_df.index,
+                    x=stock_df['Date'], # 이제 'Date' 컬럼 사용
                     open=stock_df['Open'],
                     high=stock_df['High'],
                     low=stock_df['Low'],
@@ -100,8 +117,8 @@ else:
                 if len(stock_df) > 50: # 데이터가 충분할 때만
                     stock_df['MA20'] = stock_df['Close'].rolling(window=20).mean()
                     stock_df['MA50'] = stock_df['Close'].rolling(window=50).mean()
-                    fig_candlestick.add_trace(go.Scatter(x=stock_df.index, y=stock_df['MA20'], mode='lines', name='MA20', line=dict(color='blue', width=1)))
-                    fig_candlestick.add_trace(go.Scatter(x=stock_df.index, y=stock_df['MA50'], mode='lines', name='MA50', line=dict(color='green', width=1)))
+                    fig_candlestick.add_trace(go.Scatter(x=stock_df['Date'], y=stock_df['MA20'], mode='lines', name='MA20', line=dict(color='blue', width=1)))
+                    fig_candlestick.add_trace(go.Scatter(x=stock_df['Date'], y=stock_df['MA50'], mode='lines', name='MA50', line=dict(color='green', width=1)))
 
                 fig_candlestick.update_layout(
                     title=f'{company} 캔들스틱 차트',
@@ -113,6 +130,7 @@ else:
                 st.plotly_chart(fig_candlestick, use_container_width=True)
 
                 # 거래량 차트
-                fig_volume = px.bar(stock_df, x=stock_df.index, y='Volume', title=f'{company} 거래량', labels={'Volume': '거래량'})
+                # x='Date' 컬럼을 명시적으로 사용
+                fig_volume = px.bar(stock_df, x='Date', y='Volume', title=f'{company} 거래량', labels={'Volume': '거래량'})
                 fig_volume.update_layout(xaxis_title="날짜", yaxis_title="거래량")
                 st.plotly_chart(fig_volume, use_container_width=True)
