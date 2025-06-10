@@ -70,7 +70,7 @@ if uploaded_file is not None:
                             x=col_x,
                             y=col_y,
                             title=f"{col_x}에 따른 {col_y}의 변화 추이 📈", # 제목 변경
-                            labels={col_x: f"{col_x} (단위: 시간/횟수)", col_y: f"{col_y} (단위: 측정값)"}, # 레이블 변경
+                            labels={col_x: f"{col_x}", col_y: f"{col_y}"}, # 레이블 변경
                             hover_data=[col_x, col_y],
                             markers=True # 각 데이터 포인트에 마커 표시
                         )
