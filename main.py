@@ -1,140 +1,116 @@
 import streamlit as st
-import folium
-from streamlit_folium import st_folium
-from datetime import date, timedelta
+import pandas as pd
+import plotly.express as px
 
-# 관광지 정보 리스트
-sydney_attractions = [
-    {
-        "name": "시드니 오페라 하우스",
-        "location": [-33.8568, 151.2153],
-        "description": """
-세계적으로 유명한 공연 예술 센터로,
-독특한 조개껍데기 모양의 건축물이 특징입니다.
-유네스코 세계유산에 등재되어 있으며,
-내부 투어나 공연 관람이 가능합니다.
-"""
-    },
-    {
-        "name": "하버 브리지",
-        "location": [-33.8523, 151.2108],
-        "description": """
-시드니 하버를 가로지르는 거대한 아치형 철교입니다.
-하버 브리지 클라임을 통해 다리 꼭대기에서
-시드니 전경을 감상할 수 있습니다.
-"""
-    },
-    {
-        "name": "본다이 비치",
-        "location": [-33.8915, 151.2767],
-        "description": """
-세계적인 서핑 명소이자 인기 있는 해변입니다.
-해안 산책로인 본다이 투 쿠지 워크도 추천됩니다.
-"""
-    },
-    {
-        "name": "시드니 타워 아이",
-        "location": [-33.8705, 151.2088],
-        "description": """
-시드니에서 가장 높은 전망대로,
-360도 도시 전망을 감상할 수 있습니다.
-스카이워크 야외 유리 데크 체험도 제공됩니다.
-"""
-    },
-    {
-        "name": "타롱가 동물원",
-        "location": [-33.8430, 151.2413],
-        "description": """
-시드니 하버를 내려다보는 언덕에 위치한 동물원입니다.
-코알라, 캥거루, 기린 등 다양한 동물을 가까이서 볼 수 있습니다.
-"""
-    },
-    {
-        "name": "오스트레일리아 박물관",
-        "location": [-33.8740, 151.2131],
-        "description": """
-호주에서 가장 오래된 박물관으로,
-자연사, 고고학, 문화 유산 관련 전시가 풍부합니다.
-"""
-    },
-    {
-        "name": "아트 갤러리 NSW",
-        "location": [-33.8680, 151.2171],
-        "description": """
-호주와 국제 현대 미술 작품이 전시되어 있는 미술관입니다.
-시드니 중심에 위치해 접근성이 뛰어납니다.
-"""
+st.set_page_config(page_title=" 실험 데이터 분석기 🔬🧪", layout="centered")
+st.title("온도 변화 그래프로 중화점 찾기 📊")
+st.markdown("""
+    <style>
+    body {
+        background-color: #f4f9ff;
     }
-]
+    .stApp {
+        background-image: url('https://images.unsplash.com/photo-1581090700227-1e8e5f9f7f86?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# Streamlit 앱 제목
-st.title("\U0001F1E6\U0001F1FA 나의 시드니 여행 가이드")
-st.markdown("호주의 아름다운 항구 도시 시드니의 주요 관광지를 소개합니다!")
+st.markdown("""
+    환영합니다! 👋 무선 센서로 얻은 데이터를 csv 파일로 업로드하면 그래프를 그려줄게요.
+    특히, '중화점'을 찾는 데 유용합니다. 🧪
+""")
 
-# Folium 지도 생성
-m = folium.Map(location=[-33.8688, 151.2093], zoom_start=12, control_scale=True)
+st.markdown("---")
+st.header("1. CSV 파일 업로드 📂")
+uploaded_file = st.file_uploader("여기에 실험 데이터를 담은 CSV 파일을 업로드해주세요.", type=["csv"])
 
-# 관광지 마커 추가
-for place in sydney_attractions:
-    html_popup = f"""
-    <h4>{place['name']}</h4>
-    <p style='white-space: pre-wrap;'>{place['description'].strip()}</p>
-    """
-    folium.Marker(
-        location=place["location"],
-        popup=folium.Popup(html_popup, max_width=300, min_width=200),
-        tooltip=place["name"],
-        icon=folium.Icon(color="blue", icon="info-sign")
-    ).add_to(m)
+df = None
 
-# Streamlit에 Folium 지도 출력
-st_folium(m, width=700, height=500)
+if uploaded_file is not None:
+    try:
+        df = pd.read_csv(uploaded_file)
+        st.success("🎉 파일 업로드 성공! 데이터 미리보기를 확인해보세요.")
+        st.subheader("데이터 미리보기 (상위 5행) 👀")
+        st.dataframe(df.head())
 
-# 관광지 정보 텍스트로도 출력
-st.header("\U0001F4CD 관광지 상세 정보")
-for place in sydney_attractions:
-    with st.expander(place["name"]):
-        st.write(place["description"])
+        st.subheader("데이터 컬럼 정보 💡")
+        st.write("사용 가능한 컬럼들:")
+        st.write(df.columns.tolist())
 
-# 여행 코스 추천
-st.header("\U0001F5FA 추천 여행 코스")
-selected_days = st.slider("여행 일수 선택", min_value=1, max_value=5, value=3)
+        st.header("2. 그래프 그리기 📈")
+        st.markdown("어떤 변수들 사이의 관계를 알아보고 싶나요? X축과 Y축에 놓을 컬럼을 선택해주세요.")
 
-itinerary = {
-    1: ["시드니 오페라 하우스", "하버 브리지"],
-    2: ["본다이 비치", "시드니 타워 아이"],
-    3: ["타롱가 동물원", "오스트레일리아 박물관"],
-    4: ["본다이 비치", "아트 갤러리 NSW"],
-    5: ["시드니 오페라 하우스", "아트 갤러리 NSW"]
-}
+        numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
 
-for day in range(1, selected_days + 1):
-    st.subheader(f"Day {day}")
-    for place_name in itinerary.get(day, []):
-        place = next(p for p in sydney_attractions if p["name"] == place_name)
-        st.markdown(f"**{place['name']}**: {place['description'].strip().splitlines()[0]}")
+        if not numeric_cols:
+            st.warning("경고: 업로드된 파일에 그래프를 그릴 수 있는 숫자형 데이터 컬럼이 없습니다. 😥")
+        else:
+            col_x = st.selectbox("X축 (가로축)을 설정하세요:", options=numeric_cols, key='x_axis')
+            col_y = st.selectbox("Y축 (세로축)을 설정하세요:", options=numeric_cols, key='y_axis')
 
-# 간단한 일정표 생성기
-st.header("\U0001F4C5 나의 일정 만들기")
-st.markdown("원하는 날짜와 관광지를 선택해보세요! (2개 이상 선택 가능)")
+            st.subheader("어떤 종류의 그래프로 볼까요? 🤔")
+            graph_type = st.radio(
+                "그래프 종류 선택:",
+                ("산점도 (Scatter Plot) 🟣", "선 그래프 (Line Plot) 〰️")
+            )
 
-travel_start = st.date_input("여행 시작일", date.today())
-schedule = {}
+            if st.button("그래프 그리기 🎨"):
+                if col_x and col_y:
+                    st.subheader(f"'{col_x}'와 '{col_y}'의 관계 그래프")
 
-for i in range(selected_days):
-    current_date = travel_start + timedelta(days=i)
-    selected_places = st.multiselect(f"Day {i+1} 일정 선택 ({current_date})", [p["name"] for p in sydney_attractions], key=f"day_{i}")
-    schedule[str(current_date)] = selected_places
+                    # 최대 Y값과 해당하는 모든 X값 찾기
+                    max_y = df[col_y].max()
+                    max_rows = df[df[col_y] == max_y]
+                    max_x_values = max_rows[col_x].tolist()
 
-st.subheader("📆 나의 여행 일정표")
-for day, places in schedule.items():
-    if places:
-        st.markdown(f"**{day}**")
-        reordered = st.experimental_data_editor(
-            {"순서": list(range(1, len(places)+1)), "장소": places},
-            num_rows="dynamic",
-            use_container_width=True,
-            key=f"editor_{day}"
-        )
-        for idx, row in reordered.iterrows():
-            st.write(f"{row['순서']} - {row['장소']}")
+                    # Plotly 그래프 생성
+                    if graph_type == "산점도 (Scatter Plot) 🟣":
+                        fig = px.scatter(
+                            df,
+                            x=col_x,
+                            y=col_y,
+                            title=f"{col_x} vs {col_y} 산점도 분석 🧐",
+                            labels={col_x: f"{col_x}", col_y: f"{col_y}"},
+                            hover_data=[col_x, col_y]
+                        )
+                    elif graph_type == "선 그래프 (Line Plot) 〰️":
+                        fig = px.line(
+                            df,
+                            x=col_x,
+                            y=col_y,
+                            title=f"{col_x}에 따른 {col_y}의 변화 추이 📈",
+                            labels={col_x: f"{col_x}", col_y: f"{col_y}"},
+                            hover_data=[col_x, col_y],
+                            markers=True
+                        )
+
+                    # 최대 Y값에 해당하는 모든 X값 그래프에 표시
+                    fig.add_scatter(x=max_x_values, y=[max_y]*len(max_x_values),
+                                    mode='markers+text',
+                                    marker=dict(color='red', size=12),
+                                    text=[f"최대 Y: {max_y}"]*len(max_x_values),
+                                    textposition="top center",
+                                    name="최대점")
+
+                    fig.update_layout(
+                        title_font_size=20,
+                        xaxis_title_font_size=14,
+                        yaxis_title_font_size=14,
+                        height=500
+                    )
+
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    st.success(f"✅ Y값이 최대({max_y})일 때의 X값 목록은 아래 표와 같습니다:")
+                    st.dataframe(max_rows[[col_x, col_y]].reset_index(drop=True))
+
+                else:
+                    st.warning("X축과 Y축 컬럼을 모두 선택해주세요. 🧐")
+
+    except Exception as e:
+        st.error(f"파일을 읽는 중 오류가 발생했습니다. CSV 파일 형식이 올바른지 확인해주세요: {e} 😞")
+
+st.markdown("---")
+st.markdown("Made with ❤️ by 곰지T")
