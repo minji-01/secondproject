@@ -36,10 +36,10 @@ if uploaded_file is not None:
     try:
         df = pd.read_csv(uploaded_file)
         st.success("파일 업로드 성공! 🎉 데이터 미리보기를 확인해보세요.")
-        st.markdown("<h4>데이터 미리보기 (상위 5행) 👀</h4>", unsafe_allow_html=True)
+        st.markdown("👀 데이터 미리보기 (상위 5행)", unsafe_allow_html=True)
         st.dataframe(df.head())
 
-        st.markdown("<h4>데이터 컬럼 정보 💡</h4>", unsafe_allow_html=True)
+        st.markdown("💡데이터 컬럼 정보", unsafe_allow_html=True)
         st.write("사용 가능한 컬럼들:")
         st.write(df.columns.tolist())
 
