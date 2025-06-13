@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(page_title=" 실험 데이터 분석기 🔬🧪", layout="centered")
-st.title("온도 변화 그래프로 중화점 찾기 📊")
+st.set_page_config(page_title="실험 데이터 분석기 🔬🧪", layout="centered")
+st.title("온도변화 그래프로 중화점 찾기 📊")
 st.markdown("""
     <style>
     body {
@@ -14,12 +14,16 @@ st.markdown("""
         background-size: cover;
         background-position: center;
     }
+    h4 {
+        font-size: 0.8rem !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-    환영합니다! 👋 무선 센서로 얻은 데이터를 csv 파일로 업로드하면 그래프를 그려줄게요.
-    특히, '중화점'을 찾는 데 유용합니다. 🧪
+    환영합니다! 👋 이 앱은 여러분의 **화학 실험 데이터**를 시각적으로 분석하는 데 도움을 줄 거예요.
+    무선 센서로 얻은 CSV 파일을 업로드하고, 원하는 변수를 선택해서 멋진 그래프를 만들어 보세요! 🚀
+    특히, **중화점** 을 찾는 데 유용합니다. 🧪
 """)
 
 st.markdown("---")
@@ -31,11 +35,11 @@ df = None
 if uploaded_file is not None:
     try:
         df = pd.read_csv(uploaded_file)
-        st.success("🎉 파일 업로드 성공! 데이터 미리보기를 확인해보세요.")
-        st.subheader("데이터 미리보기 (상위 5행) 👀")
+        st.success("파일 업로드 성공! 🎉 데이터 미리보기를 확인해보세요.")
+        st.markdown("<h4>데이터 미리보기 (상위 5행) 👀</h4>", unsafe_allow_html=True)
         st.dataframe(df.head())
 
-        st.subheader("데이터 컬럼 정보 💡")
+        st.markdown("<h4>데이터 컬럼 정보 💡</h4>", unsafe_allow_html=True)
         st.write("사용 가능한 컬럼들:")
         st.write(df.columns.tolist())
 
@@ -53,19 +57,17 @@ if uploaded_file is not None:
             st.subheader("어떤 종류의 그래프로 볼까요? 🤔")
             graph_type = st.radio(
                 "그래프 종류 선택:",
-                ("산점도 (Scatter Plot) 🟣", "선 그래프 (Line Plot) 〰️")
+                ("산점도 (Scatter Plot)", "선 그래프 (Line Plot)")
             )
 
-            if st.button("그래프 그리기 🎨"):
+            if st.button("그래프 그리기! 🎨"):
                 if col_x and col_y:
                     st.subheader(f"'{col_x}'와 '{col_y}'의 관계 그래프")
 
-                    # 최대 Y값과 해당하는 모든 X값 찾기
                     max_y = df[col_y].max()
                     max_rows = df[df[col_y] == max_y]
                     max_x_values = max_rows[col_x].tolist()
 
-                    # Plotly 그래프 생성
                     if graph_type == "산점도 (Scatter Plot) 🟣":
                         fig = px.scatter(
                             df,
@@ -86,7 +88,6 @@ if uploaded_file is not None:
                             markers=True
                         )
 
-                    # 최대 Y값에 해당하는 모든 X값 그래프에 표시
                     fig.add_scatter(x=max_x_values, y=[max_y]*len(max_x_values),
                                     mode='markers+text',
                                     marker=dict(color='red', size=12),
@@ -113,4 +114,5 @@ if uploaded_file is not None:
         st.error(f"파일을 읽는 중 오류가 발생했습니다. CSV 파일 형식이 올바른지 확인해주세요: {e} 😞")
 
 st.markdown("---")
-st.markdown("Made by 곰지T ❤️")
+st.info("이 앱이 화학 실험 데이터를 이해하는 데 도움이 되었기를 바랍니다! 궁금한 점이 있다면 언제든지 질문하세요! 🧑‍🔬👩‍🔬")
+st.markdown("Made by 곰지T❤️")
