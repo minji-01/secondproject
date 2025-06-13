@@ -15,9 +15,6 @@ st.markdown("""
         background-size: cover;
         background-position: center;
     }
-    h4 {
-        font-size: 0.8rem !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
