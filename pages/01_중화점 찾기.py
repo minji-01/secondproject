@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(page_title="과학 실험 데이터 분석기 🔬🧪", layout="centered")
-st.title("온도변화 그래프로 중화점 찾기 📊")
+st.set_page_config(page_title=" 실험 데이터 분석기 🔬🧪", layout="centered")
+st.title("온도 변화 그래프로 중화점 찾기 📊")
 st.markdown("""
     <style>
     body {
