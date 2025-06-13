@@ -3,14 +3,27 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(page_title="과학 실험 데이터 분석기 🔬🧪", layout="centered")
-st.title("그래프의 최대값 찾기 📊")
-st.markdown("---")
+st.title("온도변화 그래프로 중화점 찾기 📊")
+st.markdown("""
+    <style>
+    body {
+        background-color: #f4f9ff;
+    }
+    .stApp {
+        background-image: url('https://images.unsplash.com/photo-1581090700227-1e8e5f9f7f86?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
-    환영합니다! 👋 이 앱은 여러분의 **과학 실험 데이터**를 시각적으로 분석하는 데 도움을 줄 거예요.
+    환영합니다! 👋 이 앱은 여러분의 **화학 실험 데이터**를 시각적으로 분석하는 데 도움을 줄 거예요.
     CSV 파일을 업로드하고, 원하는 변수를 선택해서 멋진 그래프를 만들어 보세요! 🚀
+    특히, **중화점**, **온도 변화**, **최대 반응 시점**을 찾는 데 유용합니다. 🧪
 """)
 
+st.markdown("---")
 st.header("1. CSV 파일 업로드 📂")
 uploaded_file = st.file_uploader("여기에 실험 데이터를 담은 CSV 파일을 업로드해주세요.", type=["csv"])
 
@@ -48,12 +61,14 @@ if uploaded_file is not None:
                 if col_x and col_y:
                     st.subheader(f"'{col_x}'와 '{col_y}'의 관계 그래프")
 
-                    # 💡 최대 Y값과 해당하는 X값 찾기
+                    # 최대 Y값과 해당하는 모든 X값 찾기
                     max_y = df[col_y].max()
-                    max_row = df[df[col_y] == max_y].iloc[0]  # 첫 번째 최대값
-                    max_x = max_row[col_x]
+                    max_rows = df[df[col_y] == max_y]
+                    max_x_values = max_rows[col_x].tolist()
 
-                    # 💡 Plotly 그래프 생성
+                    selected_max_x = st.selectbox("여러 개의 최대 Y값이 발견되었습니다. 확인하고 싶은 X값을 선택하세요:", options=max_x_values)
+
+                    # Plotly 그래프 생성
                     if graph_type == "산점도 (Scatter Plot) 🟣":
                         fig = px.scatter(
                             df,
@@ -74,8 +89,7 @@ if uploaded_file is not None:
                             markers=True
                         )
 
-                    # 💡 최대점 강조 (주석 추가)
-                    fig.add_scatter(x=[max_x], y=[max_y],
+                    fig.add_scatter(x=[selected_max_x], y=[max_y],
                                     mode='markers+text',
                                     marker=dict(color='red', size=12),
                                     text=[f"최대 Y: {max_y}"],
@@ -91,8 +105,7 @@ if uploaded_file is not None:
 
                     st.plotly_chart(fig, use_container_width=True)
 
-                    # 💡 최대 Y에 해당하는 X값 출력
-                    st.success(f"✅ Y값이 최대({max_y})일 때의 X값은: **{max_x}** 입니다!")
+                    st.success(f"✅ Y값이 최대({max_y})일 때의 선택된 X값은: **{selected_max_x}** 입니다!")
 
                 else:
                     st.warning("X축과 Y축 컬럼을 모두 선택해주세요. 🧐")
@@ -101,5 +114,5 @@ if uploaded_file is not None:
         st.error(f"파일을 읽는 중 오류가 발생했습니다. CSV 파일 형식이 올바른지 확인해주세요: {e} 😞")
 
 st.markdown("---")
-st.info("이 앱이 과학 실험 데이터를 이해하는 데 도움이 되었기를 바랍니다! 궁금한 점이 있다면 언제든지 질문하세요! 🧑‍🔬👩‍🔬")
+st.info("이 앱이 화학 실험 데이터를 이해하는 데 도움이 되었기를 바랍니다! 궁금한 점이 있다면 언제든지 질문하세요! 🧑‍🔬👩‍🔬")
 st.markdown("Made with ❤️ by 곰지T")
