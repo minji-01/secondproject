@@ -4,6 +4,7 @@ import plotly.express as px
 
 st.set_page_config(page_title="실험 데이터 분석기 🔬🧪", layout="centered")
 st.title("온도변화 그래프로 중화점 찾기 📊")
+
 st.markdown("""
     <style>
     body {
@@ -21,9 +22,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-    환영합니다! 👋 이 앱은 여러분의 **화학 실험 데이터**를 시각적으로 분석하는 데 도움을 줄 거예요.
-    무선 센서로 얻은 CSV 파일을 업로드하고, 원하는 변수를 선택해서 멋진 그래프를 만들어 보세요! 🚀
-    특히, **중화점** 을 찾는 데 유용합니다. 🧪
+    환영합니다! 👋 이 앱은 여러분의 **화학 실험 데이터**를 시각적으로 분석하는 데 도움을 줄 거예요.  
+    무선 센서로 얻은 CSV 파일을 업로드하고, 원하는 변수를 선택해서 멋진 그래프를 만들어 보세요! 🚀  
+    특히, **중화점**을 찾는 데 유용합니다. 🧪
 """)
 
 st.markdown("---")
@@ -54,11 +55,12 @@ if uploaded_file is not None:
             col_x = st.selectbox("X축 (가로축)을 설정하세요:", options=numeric_cols, key='x_axis')
             col_y = st.selectbox("Y축 (세로축)을 설정하세요:", options=numeric_cols, key='y_axis')
 
-            st.subheader("어떤 종류의 그래프로 볼까요? 🤔")
-            graph_type = st.radio(
-                "그래프 종류 선택:",
-                ("산점도 (Scatter Plot)", "선 그래프 (Line Plot)")
-            )
+            graph_options = {
+                "산점도 (Scatter Plot)": "scatter",
+                "선 그래프 (Line Plot)": "line"
+            }
+            selected_graph = st.radio("그래프 종류 선택:", list(graph_options.keys()))
+            graph_type = graph_options[selected_graph]
 
             if st.button("그래프 그리기! 🎨"):
                 if col_x and col_y:
@@ -68,7 +70,7 @@ if uploaded_file is not None:
                     max_rows = df[df[col_y] == max_y]
                     max_x_values = max_rows[col_x].tolist()
 
-                    if graph_type == "산점도 (Scatter Plot) 🟣":
+                    if graph_type == "scatter":
                         fig = px.scatter(
                             df,
                             x=col_x,
@@ -77,7 +79,7 @@ if uploaded_file is not None:
                             labels={col_x: f"{col_x}", col_y: f"{col_y}"},
                             hover_data=[col_x, col_y]
                         )
-                    elif graph_type == "선 그래프 (Line Plot) 〰️":
+                    elif graph_type == "line":
                         fig = px.line(
                             df,
                             x=col_x,
@@ -88,12 +90,15 @@ if uploaded_file is not None:
                             markers=True
                         )
 
-                    fig.add_scatter(x=max_x_values, y=[max_y]*len(max_x_values),
-                                    mode='markers+text',
-                                    marker=dict(color='red', size=12),
-                                    text=[f"최대 Y: {max_y}"]*len(max_x_values),
-                                    textposition="top center",
-                                    name="최대점")
+                    fig.add_scatter(
+                        x=max_x_values,
+                        y=[max_y] * len(max_x_values),
+                        mode='markers+text',
+                        marker=dict(color='red', size=12),
+                        text=[f"최대 Y: {max_y}"] * len(max_x_values),
+                        textposition="top center",
+                        name="최대점"
+                    )
 
                     fig.update_layout(
                         title_font_size=20,
@@ -106,7 +111,6 @@ if uploaded_file is not None:
 
                     st.success(f"✅ Y값이 최대({max_y})일 때의 X값 목록은 아래 표와 같습니다:")
                     st.dataframe(max_rows[[col_x, col_y]].reset_index(drop=True))
-
                 else:
                     st.warning("X축과 Y축 컬럼을 모두 선택해주세요. 🧐")
 
@@ -115,4 +119,4 @@ if uploaded_file is not None:
 
 st.markdown("---")
 st.info("이 앱이 화학 실험 데이터를 이해하는 데 도움이 되었기를 바랍니다! 궁금한 점이 있다면 언제든지 질문하세요! 🧑‍🔬👩‍🔬")
-st.markdown("Made by 곰지T❤️")
+st.markdown("Made by 곰지T ❤️")
