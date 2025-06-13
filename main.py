@@ -113,4 +113,4 @@ if uploaded_file is not None:
         st.error(f"파일을 읽는 중 오류가 발생했습니다. CSV 파일 형식이 올바른지 확인해주세요: {e} 😞")
 
 st.markdown("---")
-st.markdown("Made with ❤️ by 곰지T")
+st.markdown("Made by 곰지T ❤️")
