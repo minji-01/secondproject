@@ -66,8 +66,6 @@ if uploaded_file is not None:
                     max_rows = df[df[col_y] == max_y]
                     max_x_values = max_rows[col_x].tolist()
 
-                    selected_max_x = st.selectbox("여러 개의 최대 Y값이 발견되었습니다. 확인하고 싶은 X값을 선택하세요:", options=max_x_values)
-
                     # Plotly 그래프 생성
                     if graph_type == "산점도 (Scatter Plot) 🟣":
                         fig = px.scatter(
@@ -89,10 +87,11 @@ if uploaded_file is not None:
                             markers=True
                         )
 
-                    fig.add_scatter(x=[selected_max_x], y=[max_y],
+                    # 최대 Y값에 해당하는 모든 X값 그래프에 표시
+                    fig.add_scatter(x=max_x_values, y=[max_y]*len(max_x_values),
                                     mode='markers+text',
                                     marker=dict(color='red', size=12),
-                                    text=[f"최대 Y: {max_y}"],
+                                    text=[f"최대 Y: {max_y}"]*len(max_x_values),
                                     textposition="top center",
                                     name="최대점")
 
@@ -105,7 +104,8 @@ if uploaded_file is not None:
 
                     st.plotly_chart(fig, use_container_width=True)
 
-                    st.success(f"✅ Y값이 최대({max_y})일 때의 선택된 X값은: **{selected_max_x}** 입니다!")
+                    st.success(f"✅ Y값이 최대({max_y})일 때의 X값 목록은 아래 표와 같습니다:")
+                    st.dataframe(max_rows[[col_x, col_y]].reset_index(drop=True))
 
                 else:
                     st.warning("X축과 Y축 컬럼을 모두 선택해주세요. 🧐")
