@@ -115,5 +115,5 @@ if uploaded_file is not None:
         st.error(f"파일을 읽는 중 오류가 발생했습니다. CSV 파일 형식이 올바른지 확인해주세요: {e} 😞")
 
 st.markdown("---")
-st.info("이 앱이 화학 실험 데이터를 이해하는 데 도움이 되었기를 바랍니다! 궁금한 점이 있다면 언제든지 질문하세요! 🧑‍🔬👩‍🔬")
+st.info("이 수행평가를 위해 일회용 app까지 만들었다 얘들아 도움이 되었길 바라며...")
 st.markdown("Made by 곰지T ❤️")
